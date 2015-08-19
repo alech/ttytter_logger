@@ -1,0 +1,12 @@
+Twitter timeline logger for ttytter
+===================================
+
+unpack twitter archive
+run cleanup.sh from unpacked directory
+set $DEST variable in ttytter_logger.pl
+start ttytter with extension:
+ttytter.pl -ssl -dostream -exts=ttytter_logger.pl
+...
+PROFIT :)
+
+
