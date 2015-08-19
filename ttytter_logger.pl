@@ -5,8 +5,6 @@ use Data::Dumper;
 #use strict;
 #use warnings;
 
-my $DEST = $ENV{'HOME'} . "/twitter_archive";
-
 sub create_empty_tweet_file {
 	my $year = shift;
 	my $month = shift;
@@ -17,14 +15,14 @@ sub create_empty_tweet_file {
 }
 
 sub create_empty_tweet_index_file {
-	open(my $fh, '>', $DEST . "/data/js/tweet_index.js");
+	open(my $fh, '>', $extpref_logger_dest . "/data/js/tweet_index.js");
 	print $fh "var tweet_index = []";
 }
 
 sub tweet_file {
 	my $year = shift;
 	my $month = shift;
-	return $DEST . "/data/js/tweets/". $year . "_" . $month . ".js";
+	return $extpref_logger_dest . "/data/js/tweets/". $year . "_" . $month . ".js";
 }
 
 sub add_tweet_to_tweet_file {
@@ -61,10 +59,10 @@ sub update_tweet_index {
 	my $json = JSON->new();
 	$json->utf8();
 
-	if (! -e $DEST . "/data/js/tweet_index.js") {
+	if (! -e $extpref_logger_dest . "/data/js/tweet_index.js") {
 		create_empty_tweet_index_file();
 	}
-	open(my $in, '<', $DEST . "/data/js/tweet_index.js");
+	open(my $in, '<', $extpref_logger_dest . "/data/js/tweet_index.js");
 	local $/ = undef;
 	my $data = <$in>;
 	close($in);
@@ -86,7 +84,7 @@ sub update_tweet_index {
 			'tweet_count' => 1,
 		}
 	}
-	open(my $out, '>', $DEST . "/data/js/tweet_index.js");
+	open(my $out, '>', $extpref_logger_dest . "/data/js/tweet_index.js");
 	print $out "var tweet_index = " . $json->encode(\@index);
 	close($out);
 }
