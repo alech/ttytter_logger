@@ -1,0 +1,37 @@
+--- /tmp/2.1.00.txt	2014-01-15 06:20:47.000000000 +0100
++++ bin/ttytter.pl	2015-08-20 11:48:11.723613202 +0200
+@@ -14,6 +14,7 @@
+ #########################################################################
+ 
+ require 5.005;
++use JSON;
+ 
+ BEGIN {
+ 	# ONLY STUFF THAT MUST RUN BEFORE INITIALIZATION GOES HERE!
+@@ -7142,6 +7143,8 @@
+ 	my $ddqqmask;
+ 	my $ssqqmask;
+ 
++	my $orig_data = $data;
++
+ 	# test for single logicals
+ 	return {
+ 		'ok' => 1,
+@@ -7258,6 +7261,17 @@
+ EOF
+ 	}
+ 
++	if (ref($my_json_ref) eq 'ARRAY') {
++		if (ref $my_json_ref->[0] eq 'HASH' && $my_json_ref->[0]->{'id'}) {
++			# is a collection of tweets, decode using JSON library too
++			my $json = JSON->new();
++			my $decoded = $json->decode($orig_data);
++			for (my $i = 0; $i < scalar(@{$my_json_ref}); $i++) {
++				# add JSON library decoded version to each tweet
++				$my_json_ref->[$i]->{'__json_decoded'} = $decoded->[$i];
++			}	
++		}
++	}
+ 	return $my_json_ref;
+ }
+ 

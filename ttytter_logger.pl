@@ -7,30 +7,6 @@ use Data::Dumper;
 
 my $DEST = $ENV{'HOME'} . "/twitter_archive";
 
-sub fix_bools_and_strings {
-	my $ref = shift;
-	if (ref($ref) eq 'ARRAY') {
-		for (my $i = 0; $i < scalar(@{$ref}); $i++) {
-			$ref->[$i] = fix_bools_and_strings($ref->[$i]);
-		}
-	}
-	elsif (ref($ref) eq 'HASH') {
-		foreach my $key (keys %{ $ref }) {
-			$ref->{$key} = fix_bools_and_strings($ref->{$key});
-		}
-	}
-	elsif (! ref($ref)) {
-		if ($ref eq 'true') {
-			return JSON::true;
-		}
-		elsif ($ref eq 'false') {
-			return JSON::false;
-		}
-		return &descape($ref);
-	}
-	return $ref;
-}
-
 sub create_empty_tweet_file {
 	my $year = shift;
 	my $month = shift;
@@ -67,7 +43,11 @@ sub add_tweet_to_tweet_file {
 	close($in);
 	$data =~ s/.*?\n//m; # remove first line, since that is a variable
 	@tweets = @{ $json->decode($data) };
-	push(@tweets, fix_bools_and_strings($ref));
+	#print Dumper($ref->{'__json_decoded'});
+	if ($ref->{'__json_decoded'}) {
+		print '.';
+		unshift(@tweets, $ref->{'__json_decoded'});
+	}
 	
 	open(my $out, '>', tweet_file($year, $month));
 	print $out "Grailbird.data.tweets_" . $year . "_" . $month . "=\n" . $json->encode(\@tweets);
