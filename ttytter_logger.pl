@@ -41,9 +41,7 @@ sub add_tweet_to_tweet_file {
 	close($in);
 	$data =~ s/.*?\n//m; # remove first line, since that is a variable
 	@tweets = @{ $json->decode($data) };
-	#print Dumper($ref->{'__json_decoded'});
 	if ($ref->{'__json_decoded'}) {
-		print '.';
 		unshift(@tweets, $ref->{'__json_decoded'});
 	}
 	
@@ -103,5 +101,6 @@ $handle = sub {
 	add_tweet_to_tweet_file($year, $month, $ref);
 	update_tweet_index($year, $month);
 	
+	&defaulthandle($ref);
 	return 1;
 }
