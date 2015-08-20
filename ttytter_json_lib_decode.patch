@@ -1,5 +1,5 @@
 --- 2.1.00.txt	2014-01-15 06:20:47.000000000 +0100
-+++ ttytter.pl	2015-08-20 22:31:27.415471876 +0200
++++ ttytter.pl	2015-08-20 23:40:54.103372746 +0200
 @@ -14,6 +14,7 @@
  #########################################################################
  
@@ -17,7 +17,7 @@
  	# test for single logicals
  	return {
  		'ok' => 1,
-@@ -7258,6 +7261,23 @@
+@@ -7258,6 +7261,28 @@
  EOF
  	}
  
@@ -36,6 +36,11 @@
 +		my $json = JSON->new();
 +		my $decoded = $json->decode($orig_data);
 +		$my_json_ref->{'__json_decoded'} = $decoded;
++	}
++	elsif (ref($my_json_ref) eq 'HASH' && $my_json_ref->{'payload'}->{'id'}) {
++		my $json = JSON->new();
++		my $decoded = $json->decode($orig_data);
++		$my_json_ref->{'payload'}->{'__json_decoded'} = $decoded->{'payload'};
 +	}
 +
  	return $my_json_ref;
