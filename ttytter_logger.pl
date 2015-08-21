@@ -1,6 +1,7 @@
 use Date::Parse;
 use JSON;
 use Data::Dumper;
+use File::Copy qw(move copy);
 
 #use strict;
 #use warnings;
@@ -9,7 +10,7 @@ sub create_empty_tweet_file {
 	my $year = shift;
 	my $month = shift;
 	open(my $fh, '>', tweet_file($year, $month));
-	print $fh "Grailbird.data.tweets_" . $year . "_" . "$month" . "=\n[]";	
+	print $fh "";
 	close($fh);
 	return 1;
 }
@@ -32,22 +33,31 @@ sub add_tweet_to_tweet_file {
 
 	#print Dumper($ref);
 
+	my $infilename = tweet_file($year, $month);
+	my $outfilename   = tweet_file($year, $month) . '.tmp';
+	open(my $in, '<', $infilename);
+	open(my $out, '>', $outfilename);
+	print $out "Grailbird.data.tweets_" . $year . "_" . $month . "= [\n";
 	my $json = JSON->new();
 	$json->utf8();
+	print $out $json->encode($ref->{'__json_decoded'}) . "\n"; # new tweet at beginning
 
-	open(my $in, '<', tweet_file($year, $month));
-	local $/ = undef;
-	my $data = <$in>;
+	<$in>; # skip first line
+	LINES:
+	while (my $line = <$in>) {
+		last LINES if ($line eq "]"); # skip last closing array
+		if ($line =~ /^,/) {
+			print $out $line; # line already starts with ,
+		}
+		else {
+			print $out ',' . $line # add , to beginning of ex-first line, now second line
+		}
+        }	
 	close($in);
-	$data =~ s/.*?\n//m; # remove first line, since that is a variable
-	@tweets = @{ $json->decode($data) };
-	if ($ref->{'__json_decoded'}) {
-		unshift(@tweets, $ref->{'__json_decoded'});
-	}
-	
-	open(my $out, '>', tweet_file($year, $month));
-	print $out "Grailbird.data.tweets_" . $year . "_" . $month . "=\n" . $json->encode(\@tweets);
+	print $out "]";
 	close($out);
+
+	move($outfilename, $infilename) or die "move failed: $!";
 }
 
 sub update_tweet_index {
