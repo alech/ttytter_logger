@@ -31,7 +31,7 @@ sub add_tweet_to_tweet_file {
 	my $month = shift;
 	my $ref = shift;
 
-	#print Dumper($ref);
+	return if ! $ref->{'__json_decoded'}; # for /thread
 
 	my $infilename = tweet_file($year, $month);
 	my $outfilename   = tweet_file($year, $month) . '.tmp';
